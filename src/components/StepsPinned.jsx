@@ -7,39 +7,55 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function StepsPinned() {
   const sectionRef = useRef(null);
-  const stepRefs = useRef([]);
+  const cardsRef = useRef([]);
   const checksRef = useRef([]);
 
   useEffect(() => {
+    if (!sectionRef.current) return;
+
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: '+=2000',
-          scrub: true,
-          pin: true,
-        },
+      // Pin the whole section
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: 'top top',
+        end: '+=1800',
+        scrub: true,
+        pin: true,
       });
 
-      stepRefs.current.forEach((el, i) => {
-        tl.to(
-          el,
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            onUpdate: () => {
-              const progress = tl.progress() * (stepRefs.current.length + 0.2);
-              if (progress > i + 0.6) {
-                checksRef.current[i]?.classList.add('text-emerald-400');
-              } else {
-                checksRef.current[i]?.classList.remove('text-emerald-400');
-              }
-            },
+      // Set initial states
+      gsap.set(cardsRef.current, { opacity: 0.35, y: 24 });
+
+      // Create individual triggers for each card so we don't rely on a single timeline progress
+      cardsRef.current.forEach((card, i) => {
+        if (!card) return;
+
+        const st = ScrollTrigger.create({
+          trigger: card,
+          start: () => `top+=${i * 180} center`,
+          end: () => `top+=${i * 180 + 200} center`,
+          scrub: true,
+          onEnter: () => {
+            gsap.to(card, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' });
+            checksRef.current[i]?.classList.add('text-emerald-400');
           },
-          i
-        );
+          onEnterBack: () => {
+            gsap.to(card, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' });
+            checksRef.current[i]?.classList.add('text-emerald-400');
+          },
+          onLeaveBack: () => {
+            gsap.to(card, { opacity: 0.35, y: 24, duration: 0.4 });
+            checksRef.current[i]?.classList.remove('text-emerald-400');
+          },
+          onLeave: () => {
+            // Keep it active when scrolled past
+            gsap.to(card, { opacity: 1, y: 0, duration: 0.2 });
+            checksRef.current[i]?.classList.add('text-emerald-400');
+          },
+        });
+
+        // Keep reference if we need to do anything else later
+        return st;
       });
     }, sectionRef);
 
@@ -66,8 +82,8 @@ export default function StepsPinned() {
           ].map((s, i) => (
             <div
               key={s.title}
-              ref={(el) => (stepRefs.current[i] = el)}
-              className="flex flex-col rounded-2xl border border-white/15 bg-white/5 p-6 opacity-30 backdrop-blur-xl shadow-xl translate-y-8"
+              ref={(el) => (cardsRef.current[i] = el)}
+              className="flex flex-col rounded-2xl border border-white/15 bg-white/5 p-6 backdrop-blur-xl shadow-xl"
             >
               <div className="mb-4 flex items-center justify-between">
                 <span className="text-sm tracking-wide text-zinc-300/80">Step {i + 1}</span>
