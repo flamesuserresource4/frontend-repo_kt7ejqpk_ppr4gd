@@ -1,20 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { CheckCircle } from 'lucide-react'
+import React, { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { CheckCircle2 } from 'lucide-react';
 
-gsap.registerPlugin(ScrollTrigger)
-
-const steps = [
-  { title: 'Concept', desc: 'Shape the vibe, define the flow, and set the tone.' },
-  { title: 'Craft', desc: 'Animate with GSAP, add depth, and polish interactions.' },
-  { title: 'Launch', desc: 'Pin, parallax, and ship a silky smooth experience.' },
-]
+gsap.registerPlugin(ScrollTrigger);
 
 export default function StepsPinned() {
-  const sectionRef = useRef(null)
-  const cardsRef = useRef([])
-  const [active, setActive] = useState(0)
+  const sectionRef = useRef(null);
+  const stepRefs = useRef([]);
+  const checksRef = useRef([]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -22,67 +16,73 @@ export default function StepsPinned() {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: '+=250%',
+          end: '+=2000',
           scrub: true,
           pin: true,
-          anticipatePin: 1,
-          onUpdate: (self) => {
-            const idx = Math.min(steps.length - 1, Math.floor(self.progress * steps.length + 0.001))
-            setActive(idx)
-          },
         },
-        defaults: { ease: 'power2.out' },
-      })
+      });
 
-      cardsRef.current.forEach((el, i) => {
-        tl.fromTo(
+      stepRefs.current.forEach((el, i) => {
+        tl.to(
           el,
-          { y: 60, opacity: 0, scale: 0.95 },
-          { y: 0, opacity: 1, scale: 1, duration: 0.6 },
-          i === 0 ? 0 : '>'
-        )
-      })
-    }, sectionRef)
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            onUpdate: () => {
+              const progress = tl.progress() * (stepRefs.current.length + 0.2);
+              if (progress > i + 0.6) {
+                checksRef.current[i]?.classList.add('text-emerald-400');
+              } else {
+                checksRef.current[i]?.classList.remove('text-emerald-400');
+              }
+            },
+          },
+          i
+        );
+      });
+    }, sectionRef);
 
-    return () => ctx.revert()
-  }, [])
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section id="steps" ref={sectionRef} className="relative bg-gradient-to-b from-black/5 to-black/0">
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(1000px_400px_at_50%_-10%,rgba(255,255,255,0.25),transparent)]" />
+    <section id="steps" ref={sectionRef} className="relative w-full bg-gradient-to-b from-black via-zinc-950 to-black py-24 text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_300px_at_50%_20%,rgba(255,255,255,0.06),transparent)]" />
 
-      <div className="container mx-auto px-6 py-24 md:py-28">
-        <div className="max-w-3xl mx-auto text-center mb-10">
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900">
-            Three Crisp Steps
-          </h2>
-          <p className="mt-4 text-gray-600">
-            Pinned as you scroll, each step checks off in sequence.
+      <div className="relative mx-auto max-w-6xl px-6">
+        <div className="mx-auto mb-10 max-w-2xl text-center">
+          <h3 className="text-3xl font-semibold sm:text-4xl">From Browse to Bliss</h3>
+          <p className="mt-3 text-zinc-300">
+            Pinned progression highlights each step as you scroll. Watch the checkmarks light up.
           </p>
         </div>
 
-        <div className="mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
-          {steps.map((s, i) => (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {[
+            { title: 'Discover', desc: 'Explore our curated collection with immersive visuals.' },
+            { title: 'Select', desc: 'Compare details effortlessly and choose your favorite.' },
+            { title: 'Enjoy', desc: 'Fast, delightful checkout and premium delivery.' },
+          ].map((s, i) => (
             <div
               key={s.title}
-              ref={(el) => (cardsRef.current[i] = el)}
-              className="relative backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-6 md:p-7 shadow-[0_8px_30px_rgba(0,0,0,0.08)]"
+              ref={(el) => (stepRefs.current[i] = el)}
+              className="flex flex-col rounded-2xl border border-white/15 bg-white/5 p-6 opacity-30 backdrop-blur-xl shadow-xl translate-y-8"
             >
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray-900">{s.title}</h3>
-                <CheckCircle
-                  className={`w-6 h-6 transition-colors ${i <= active ? 'text-emerald-500' : 'text-gray-300'}`}
-                />
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-sm tracking-wide text-zinc-300/80">Step {i + 1}</span>
+                <CheckCircle2 ref={(el) => (checksRef.current[i] = el)} className="h-5 w-5 text-zinc-400 transition-colors" />
               </div>
-              <p className="mt-3 text-gray-600">{s.desc}</p>
+              <h4 className="text-xl font-semibold">{s.title}</h4>
+              <p className="mt-2 text-zinc-300">{s.desc}</p>
             </div>
           ))}
         </div>
 
-        <p className="mt-8 text-center text-sm text-gray-500">
-          Keep scrolling to complete all steps
-        </p>
+        <div className="mt-8 rounded-xl border border-white/10 bg-black/30 p-4 text-center text-sm text-zinc-300">
+          This section pins while you scroll so all steps stay visible.
+        </div>
       </div>
     </section>
-  )
+  );
 }

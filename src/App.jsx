@@ -1,21 +1,24 @@
-import Hero3D from './components/Hero3D'
-import ParallaxLayers from './components/ParallaxLayers'
-import StepsPinned from './components/StepsPinned'
-import GlassFeatures from './components/GlassFeatures'
+import React from 'react';
+import Hero3D from './components/Hero3D';
+import ParallaxLayers from './components/ParallaxLayers';
+import StepsPinned from './components/StepsPinned';
+import GlassFeatures from './components/GlassFeatures';
 
-function App() {
+export default function App() {
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#0b0b10_0%,#10121a_30%,#0f1117_100%)] text-white selection:bg-indigo-500/30">
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-black/20 border-b border-white/10">
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="font-bold tracking-tight text-white">Cigar Studio</div>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-white/80">
-            <a href="#steps" className="hover:text-white">Steps</a>
+    <div className="min-h-screen w-full bg-black text-white selection:bg-violet-500/30 selection:text-white">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-black/50 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+          <a href="#home" className="text-sm font-semibold tracking-wide text-white/90">CigarCraft</a>
+          <nav className="flex items-center gap-4 text-sm text-zinc-300">
             <a href="#features" className="hover:text-white">Features</a>
+            <a href="#steps" className="hover:text-white">Steps</a>
           </nav>
         </div>
       </header>
 
+      {/* Sections */}
       <main>
         <Hero3D />
         <ParallaxLayers />
@@ -23,11 +26,12 @@ function App() {
         <GlassFeatures />
       </main>
 
-      <footer className="py-10 text-center text-white/60">
-        Built with love for motion.
+      {/* Footer */}
+      <footer className="border-t border-white/10 bg-zinc-950/80 py-8 text-zinc-400">
+        <div className="mx-auto max-w-6xl px-6 text-sm">
+          <p>© {new Date().getFullYear()} CigarCraft — Built with motion and glass.</p>
+        </div>
       </footer>
     </div>
-  )
+  );
 }
-
-export default App
